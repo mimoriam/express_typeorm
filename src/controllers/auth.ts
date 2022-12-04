@@ -24,6 +24,7 @@ export const Register = async (
   }
 
   const user = new User();
+  const userRepository = AppDataSource.getRepository(User);
 
   const salt = await bcrypt.genSalt(10);
 
@@ -32,8 +33,36 @@ export const Register = async (
   user.email = body.email;
   user.password = await bcrypt.hash(body.password, salt);
 
-  const { password, ...saved_user } = await AppDataSource.manager.save(user);
+  const { password, ...saved_user } = await userRepository.save(user);
 
   // Return everything but the password:
   res.send(saved_user);
+};
+
+export const Login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const userRepository = AppDataSource.getRepository(User);
+
+  const user = await userRepository.findOne({
+    where: {
+      email: req.body.email,
+    },
+  });
+
+  if (!user) {
+    return res.status(400).send({
+      message: "Invalid Credentials",
+    });
+  }
+
+  if (!(await bcrypt.compare(req.body.password, user.password))) {
+    return res.status(400).send({
+      message: "Invalid Credentials",
+    });
+  }
+
+  res.send(user);
 };
