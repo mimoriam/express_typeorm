@@ -66,7 +66,7 @@ export const Login = async (
     });
   }
 
-  const token = sign({ id: user.id }, "aaaa");
+  const token = sign({ id: user.id }, process.env.SECRET_KEY);
 
   res.cookie("token", token, {
     httpOnly: true,
@@ -85,25 +85,43 @@ export const AuthenticatedUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const userRepository = AppDataSource.getRepository(User);
-  const jwt = req.cookies["token"];
+  try {
+    const userRepository = AppDataSource.getRepository(User);
+    const jwt = req.cookies["token"];
 
-  // Get payload from cookie since frontend can't see the cookie:
-  const payload: any = verify(jwt, "aaaa");
+    // Get payload from cookie since frontend can't see the cookie:
+    const payload: any = verify(jwt, process.env.SECRET_KEY);
 
-  if (!payload) {
+    if (!payload) {
+      return res.status(401).send({
+        message: "Unauthenticated!",
+      });
+    }
+
+    const user = await userRepository.findOne({
+      where: {
+        id: payload.id,
+      },
+    });
+
+    const { password, ...data } = user;
+
+    res.send(data);
+  } catch (err) {
     return res.status(401).send({
       message: "Unauthenticated!",
     });
   }
+};
 
-  const user = await userRepository.findOne({
-    where: {
-      id: payload.id,
-    },
+export const Logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  res.cookie("token", "", { maxAge: 0 });
+
+  res.send({
+    message: "Logged out successfully",
   });
-
-  const { password, ...data } = user;
-
-  res.send(data);
 };

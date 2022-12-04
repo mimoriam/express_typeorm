@@ -16,13 +16,19 @@
 // npm i cookie-parser
 // npm i -D @types/cookie-parser
 
+// npm i dotenv
+
 import express, { Express } from "express";
 import { routes } from "./routes/routes";
 import { DataSource } from "typeorm";
 import { User } from "./entity/user.entity";
 import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
 
 import "reflect-metadata";
+
+// Load env vars:
+dotenv.config({ path: "./config/config.env" });
 
 export const AppDataSource = new DataSource({
   type: "postgres",
