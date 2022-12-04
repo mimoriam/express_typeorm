@@ -13,10 +13,14 @@
 // npm i jsonwebtoken
 // npm i -D @types/jsonwebtoken
 
+// npm i cookie-parser
+// npm i -D @types/cookie-parser
+
 import express, { Express } from "express";
 import { routes } from "./routes/routes";
 import { DataSource } from "typeorm";
 import { User } from "./entity/user.entity";
+import cookieParser from "cookie-parser";
 
 import "reflect-metadata";
 
@@ -38,6 +42,7 @@ AppDataSource.initialize()
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
+    app.use(cookieParser());
 
     routes(app);
 

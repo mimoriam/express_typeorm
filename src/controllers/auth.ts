@@ -4,6 +4,7 @@ import { AppDataSource } from "../index";
 import { User } from "../entity/user.entity";
 import bcrypt from "bcryptjs";
 import { sign } from "jsonwebtoken";
+import { verify } from "jsonwebtoken";
 
 export const Register = async (
   req: Request,
@@ -34,10 +35,10 @@ export const Register = async (
   user.email = body.email;
   user.password = await bcrypt.hash(body.password, salt);
 
-  const { password, ...saved_user } = await userRepository.save(user);
+  const { password, ...data } = await userRepository.save(user);
 
   // Return everything but the password:
-  res.send(saved_user);
+  res.send(data);
 };
 
 export const Login = async (
@@ -77,4 +78,32 @@ export const Login = async (
   res.send({
     message: "success",
   });
+};
+
+export const AuthenticatedUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const userRepository = AppDataSource.getRepository(User);
+  const jwt = req.cookies["token"];
+
+  // Get payload from cookie since frontend can't see the cookie:
+  const payload: any = verify(jwt, "aaaa");
+
+  if (!payload) {
+    return res.status(401).send({
+      message: "Unauthenticated!",
+    });
+  }
+
+  const user = await userRepository.findOne({
+    where: {
+      id: payload.id,
+    },
+  });
+
+  const { password, ...data } = user;
+
+  res.send(data);
 };
