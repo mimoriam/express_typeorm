@@ -10,6 +10,9 @@
 // npm i bcryptjs
 // npm i -D @types/bcryptjs
 
+// npm i jsonwebtoken
+// npm i -D @types/jsonwebtoken
+
 import express, { Express } from "express";
 import { routes } from "./routes/routes";
 import { DataSource } from "typeorm";

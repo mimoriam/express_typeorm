@@ -3,6 +3,7 @@ import { RegisterValidation } from "../validation/register.validation";
 import { AppDataSource } from "../index";
 import { User } from "../entity/user.entity";
 import bcrypt from "bcryptjs";
+import { sign } from "jsonwebtoken";
 
 export const Register = async (
   req: Request,
@@ -64,5 +65,16 @@ export const Login = async (
     });
   }
 
-  res.send(user);
+  const token = sign({ id: user.id }, "aaaa");
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  });
+
+  const { password, ...data } = user;
+
+  res.send({
+    message: "success",
+  });
 };
