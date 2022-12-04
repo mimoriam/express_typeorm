@@ -85,7 +85,7 @@ export const AuthenticatedUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const {password, ...data} = req["user"];
+  const { password, ...data } = req["user"];
 
   res.send(data);
 };
@@ -100,4 +100,21 @@ export const Logout = async (
   res.send({
     message: "Logged out successfully",
   });
+};
+
+export const UpdatePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const userRepository = AppDataSource.getRepository(User);
+
+  const user = req["user"];
+
+  await userRepository.update(user.id, {
+    password: await bcrypt.hash(req.body.password, 10),
+  });
+
+  // Do not send the user with hashed password here (only done due to debugging)
+  res.send(user);
 };
