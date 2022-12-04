@@ -85,33 +85,9 @@ export const AuthenticatedUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const userRepository = AppDataSource.getRepository(User);
-    const jwt = req.cookies["token"];
+  const {password, ...data} = req["user"];
 
-    // Get payload from cookie since frontend can't see the cookie:
-    const payload: any = verify(jwt, process.env.SECRET_KEY);
-
-    if (!payload) {
-      return res.status(401).send({
-        message: "Unauthenticated!",
-      });
-    }
-
-    const user = await userRepository.findOne({
-      where: {
-        id: payload.id,
-      },
-    });
-
-    const { password, ...data } = user;
-
-    res.send(data);
-  } catch (err) {
-    return res.status(401).send({
-      message: "Unauthenticated!",
-    });
-  }
+  res.send(data);
 };
 
 export const Logout = async (
