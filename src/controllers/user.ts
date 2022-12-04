@@ -10,7 +10,11 @@ export const GetUsers = async (
 ) => {
   const userRepository = AppDataSource.getRepository(User);
 
-  const users = await userRepository.find();
+  const users = await userRepository.find({
+    relations: {
+      role: true,
+    },
+  });
 
   // This is done, so we don't get hashed passwords:
   return res.send(
@@ -35,6 +39,9 @@ export const CreateUser = async (
   const { password, ...user } = await userRepository.save({
     ...body,
     password: hashedPassword,
+    role: {
+      id: role_id,
+    },
   });
 
   res.send(user);
@@ -51,6 +58,9 @@ export const GetUser = async (
     where: {
       id: parseInt(req.params.id),
     },
+    relations: {
+      role: true,
+    },
   });
 
   res.send(user);
@@ -65,11 +75,20 @@ export const UpdateUser = async (
 
   const { role_id, ...body } = req.body;
 
-  await userRepository.update(req.params.id, body);
+  await userRepository.update(req.params.id, {
+    ...body,
+    role: {
+      id: role_id,
+    },
+  });
 
-  const { password, ...data } = await userRepository.findOneBy({
-    // Alternative method for WHERE clause used above:
-    id: parseInt(req.params.id),
+  const { password, ...data } = await userRepository.findOne({
+    where: {
+      id: parseInt(req.params.id),
+    },
+    relations: {
+      role: true,
+    },
   });
 
   res.send(data);

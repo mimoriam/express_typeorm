@@ -26,6 +26,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 
 import "reflect-metadata";
+import { Role } from "./entity/role.entity";
 
 // Load env vars:
 dotenv.config({ path: "./config/config.env" });
@@ -37,7 +38,7 @@ export const AppDataSource = new DataSource({
   username: "postgres",
   password: "postgres",
   database: "node_admin",
-  entities: [User],
+  entities: [User, Role],
   logging: false,
   synchronize: true,
 });
