@@ -7,10 +7,15 @@
 // npm install typeorm reflect-metadata --save
 // npm install pg --save
 
+// npm i bcryptjs
+// npm i -D @types/bcryptjs
+
 import express, { Express } from "express";
 import { routes } from "./routes/routes";
 import { DataSource } from "typeorm";
 import { User } from "./entity/user.entity";
+
+import "reflect-metadata";
 
 export const AppDataSource = new DataSource({
   type: "postgres",

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { RegisterValidation } from "../validation/register.validation";
 import { AppDataSource } from "../index";
 import { User } from "../entity/user.entity";
+import bcrypt from "bcryptjs";
 
 export const Register = async (
   req: Request,
@@ -24,12 +25,15 @@ export const Register = async (
 
   const user = new User();
 
+  const salt = await bcrypt.genSalt(10);
+
   user.first_name = body.first_name;
   user.last_name = body.last_name;
   user.email = body.email;
-  user.password = body.password;
+  user.password = await bcrypt.hash(body.password, salt);
 
-  await AppDataSource.manager.save(user);
+  const { password, ...saved_user } = await AppDataSource.manager.save(user);
 
-  res.send(req.body);
+  // Return everything but the password:
+  res.send(saved_user);
 };
