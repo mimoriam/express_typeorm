@@ -5,6 +5,9 @@ import { User } from "../entity/user.entity";
 import bcrypt from "bcryptjs";
 import { sign } from "jsonwebtoken";
 import { verify } from "jsonwebtoken";
+import { randomBytes } from "crypto";
+import { ForgotPass } from "../entity/forgot.entity";
+import { createTransport } from "nodemailer";
 
 export const Register = async (
   req: Request,
@@ -175,4 +178,80 @@ export const UpdatePassword = async (
 
   // Do not send the user with hashed password here (only done due to debugging)
   res.send(user);
+};
+
+export const ForgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { email } = req.body;
+  const token = Math.random().toString(20).substring(2, 12);
+
+  const forgotPassRepository = AppDataSource.getRepository(ForgotPass);
+
+  await forgotPassRepository.save({
+    email,
+    token,
+  });
+
+  const transporter = createTransport({
+    host: "0.0.0.0",
+    port: 1025,
+  });
+
+  const url = `http://localhost:3000/reset/${token}`;
+
+  await transporter.sendMail({
+    from: "from@example.com",
+    to: email,
+    subject: "Reset your password",
+    html: `Click <a href="${url}">here</a> to reset your password!`,
+  });
+
+  res.send({
+    message: "Email sent!",
+  });
+};
+
+export const ResetPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const forgotPassRepository = AppDataSource.getRepository(ForgotPass);
+  const { token, password } = req.body;
+
+  const resetPassword = await forgotPassRepository.findOne({
+    where: {
+      token: token,
+    },
+  });
+
+  if (!resetPassword) {
+    return res.status(400).json({
+      message: "Invalid Link!",
+    });
+  }
+
+  const userRepository = AppDataSource.getRepository(User);
+  const user = await userRepository.findOne({
+    where: {
+      email: resetPassword.email,
+    },
+  });
+
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found!",
+    });
+  }
+
+  await userRepository.update(user.id, {
+    password: await bcrypt.hash(password, 10),
+  });
+
+  res.send({
+    message: "Success",
+  });
 };

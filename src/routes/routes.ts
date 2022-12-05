@@ -1,10 +1,12 @@
 import { Router } from "express";
 import {
   AuthenticatedUser,
+  ForgotPassword,
   Login,
   Logout,
   Refresh,
   Register,
+  ResetPassword,
   UpdatePassword,
 } from "../controllers/auth";
 import { AuthMiddleware } from "../../middleware/auth.middleware";
@@ -26,6 +28,10 @@ export const routes = (router: Router) => {
 
   router.post("/api/logout", AuthMiddleware, Logout);
   router.put("/api/update", AuthMiddleware, UpdatePassword);
+
+  // Forgot Password:
+  router.post("/api/forgot", ForgotPassword);
+  router.post("/api/reset", ResetPassword);
 
   router.get("/api/users", AuthMiddleware, GetUsers);
   router.post("/api/users", AuthMiddleware, CreateUser);
