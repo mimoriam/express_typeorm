@@ -21,6 +21,8 @@
 // npm i nodemailer
 // npm i -D @types/nodemailer
 
+// npm i speakeasy
+
 import express, { Express } from "express";
 import { routes } from "./routes/routes";
 import { DataSource } from "typeorm";
@@ -32,6 +34,7 @@ import "reflect-metadata";
 import { Role } from "./entity/role.entity";
 import { Permission } from "./entity/permission.entity";
 import { ForgotPass } from "./entity/forgot.entity";
+import { Product } from "./entity/product.pagination";
 
 // Load env vars:
 dotenv.config({ path: "./config/config.env" });
@@ -43,7 +46,7 @@ export const AppDataSource = new DataSource({
   username: "postgres",
   password: "postgres",
   database: "node_admin",
-  entities: [User, Role, Permission, ForgotPass],
+  entities: [User, Role, Permission, ForgotPass, Product],
   logging: false,
   synchronize: true,
 });

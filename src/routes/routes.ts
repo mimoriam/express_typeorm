@@ -17,6 +17,7 @@ import {
   UpdateUser,
   GetUser,
 } from "../controllers/user";
+import { GetProducts } from "../controllers/product";
 
 export const routes = (router: Router) => {
   router.post("/api/register", Register);
@@ -38,4 +39,7 @@ export const routes = (router: Router) => {
   router.get("/api/users/:id", AuthMiddleware, GetUser);
   router.put("/api/users/:id", AuthMiddleware, UpdateUser);
   router.delete("/api/users/:id", AuthMiddleware, DeleteUser);
+
+  // Product pagination route:
+  router.get("/api/products", GetProducts);
 };

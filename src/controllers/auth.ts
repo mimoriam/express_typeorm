@@ -38,7 +38,8 @@ export const Register = async (
   user.email = body.email;
   user.password = await bcrypt.hash(body.password, salt);
 
-  const { password, ...data } = await userRepository.save(user);
+  // Change for TFA here:
+  const { password, tfa_secret, ...data } = await userRepository.save(user);
 
   // Return everything but the password:
   res.send(data);
@@ -100,7 +101,7 @@ export const Login = async (
   res.send({
     message: "success",
     // Sending access token for Bearer now:
-    token: accessToken
+    token: accessToken,
   });
 };
 
@@ -109,7 +110,8 @@ export const AuthenticatedUser = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { password, ...data } = req["user"];
+  // Change for TFA here:
+  const { password, tfa_secret, ...data } = req["user"];
 
   res.send(data);
 };
@@ -146,7 +148,7 @@ export const Refresh = async (
     res.send({
       message: "success",
       // Sending access token for Bearer now:
-      token: accessToken
+      token: accessToken,
     });
   } catch (err) {}
 };

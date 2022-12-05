@@ -24,4 +24,9 @@ export class User {
   @ManyToOne(() => Role)
   @JoinColumn({ name: "role_id" })
   role: Role;
+
+  @Column({
+    default: "",
+  })
+  tfa_secret: string;
 }
