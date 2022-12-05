@@ -85,10 +85,10 @@ export const Login = async (
     expiresIn: "1w",
   });
 
-  res.cookie("access_token", accessToken, {
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
-  });
+  // res.cookie("access_token", accessToken, {
+  //   httpOnly: true,
+  //   maxAge: 24 * 60 * 60 * 1000, // 1 day
+  // });
 
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
@@ -99,6 +99,8 @@ export const Login = async (
 
   res.send({
     message: "success",
+    // Sending access token for Bearer now:
+    token: accessToken
   });
 };
 
@@ -136,13 +138,15 @@ export const Refresh = async (
       }
     );
 
-    res.cookie("access_token", accessToken, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
-    });
+    // res.cookie("access_token", accessToken, {
+    //   httpOnly: true,
+    //   maxAge: 24 * 60 * 60 * 1000, // 1 day
+    // });
 
     res.send({
       message: "success",
+      // Sending access token for Bearer now:
+      token: accessToken
     });
   } catch (err) {}
 };
