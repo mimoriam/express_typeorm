@@ -11,9 +11,11 @@ export const AuthMiddleware = async (
   try {
     const userRepository = AppDataSource.getRepository(User);
     const jwt = req.cookies["token"];
+    // const accessJwt = req.cookies["access_token"];
 
     // Get payload from cookie since frontend can't see the cookie:
     const payload: any = verify(jwt, process.env.SECRET_KEY);
+    // const payload: any = verify(jwt, process.env.ACCESS_SECRET);
 
     if (!payload) {
       return res.status(401).send({

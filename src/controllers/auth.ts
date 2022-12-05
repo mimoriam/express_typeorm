@@ -66,11 +66,30 @@ export const Login = async (
     });
   }
 
-  const token = sign({ id: user.id }, process.env.SECRET_KEY);
+  // const token = sign({ id: user.id }, process.env.SECRET_KEY);
+  //
+  // res.cookie("token", token, {
+  //   httpOnly: true,
+  //   maxAge: 24 * 60 * 60 * 1000, // 1 day
+  // });
 
-  res.cookie("token", token, {
+  // Refactoring this for using access + refresh tokens:
+  const accessToken = sign({ id: user.id }, process.env.ACCESS_SECRET || "", {
+    expiresIn: "60s",
+  });
+
+  const refreshToken = sign({ id: user.id }, process.env.REFRESH_SECRET || "", {
+    expiresIn: "1w",
+  });
+
+  res.cookie("access_token", accessToken, {
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 1 day
+  });
+
+  res.cookie("refresh_token", refreshToken, {
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
   const { password, ...data } = user;
@@ -90,12 +109,51 @@ export const AuthenticatedUser = async (
   res.send(data);
 };
 
+export const Refresh = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const cookie = req.cookies["refresh_token"];
+
+    const payload: any = verify(cookie, process.env.REFRESH_SECRET || "");
+
+    if (!payload) {
+      return res.status(401).send({
+        message: "Unauthenticated!",
+      });
+    }
+
+    const accessToken = sign(
+      { id: payload.id },
+      process.env.ACCESS_SECRET || "",
+      {
+        expiresIn: "60s",
+      }
+    );
+
+    res.cookie("access_token", accessToken, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    res.send({
+      message: "success",
+    });
+  } catch (err) {}
+};
+
 export const Logout = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   res.cookie("token", "", { maxAge: 0 });
+
+  // Use with access & refresh tokens:
+  // res.cookie("access_token", "", { maxAge: 0 });
+  // res.cookie("refresh_token", "", { maxAge: 0 });
 
   res.send({
     message: "Logged out successfully",

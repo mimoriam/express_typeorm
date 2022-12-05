@@ -3,6 +3,7 @@ import {
   AuthenticatedUser,
   Login,
   Logout,
+  Refresh,
   Register,
   UpdatePassword,
 } from "../controllers/auth";
@@ -19,6 +20,10 @@ export const routes = (router: Router) => {
   router.post("/api/register", Register);
   router.post("/api/login", Login);
   router.get("/api/user", AuthMiddleware, AuthenticatedUser);
+
+  // Optional route to use both access + refresh tokens:
+  router.post("/api/refresh", Refresh);
+
   router.post("/api/logout", AuthMiddleware, Logout);
   router.put("/api/update", AuthMiddleware, UpdatePassword);
 
