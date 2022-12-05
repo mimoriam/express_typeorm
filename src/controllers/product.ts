@@ -9,17 +9,18 @@ export const GetProducts = async (
   next: NextFunction
 ) => {
   const productsRepository = await AppDataSource.getRepository(Product);
+  let queryResults;
   let selected, count;
+  let sorted, count2;
 
-  if (JSON.stringify(req.query) !== "{}") {
+  // if (JSON.stringify(req.query) !== "{}") {
+  if (req.query.select) {
     const reqQuery = { ...req.query };
-    console.log(reqQuery);
 
     let reqQuerySelected = reqQuery["select"] as string;
     reqQuerySelected = reqQuerySelected.replace(/,/g, " ");
 
     let arr = reqQuerySelected.split(" ");
-    console.log(arr);
 
     if (arr.length === 1) {
       [selected, count] = await productsRepository.findAndCount({
@@ -38,6 +39,14 @@ export const GetProducts = async (
         ],
       });
     }
+  }
+
+  if (req.query.sort) {
+    [sorted, count2] = await productsRepository.findAndCount({
+      order: {
+        price: "ASC"
+      }
+    });
   }
 
   const take = 2; // This is the amount of results per page shown
@@ -75,6 +84,13 @@ export const GetProducts = async (
       count: count,
       selected,
     });
+  }
+
+  if (sorted) {
+    return res.send({
+      count: count2,
+      sorted
+    })
   }
 
   res.send({
