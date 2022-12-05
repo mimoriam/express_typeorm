@@ -35,6 +35,7 @@ import { Role } from "./entity/role.entity";
 import { Permission } from "./entity/permission.entity";
 import { ForgotPass } from "./entity/forgot.entity";
 import { Product } from "./entity/product.pagination";
+import { Order } from "./entity/order.entity";
 
 // Load env vars:
 dotenv.config({ path: "./config/config.env" });
@@ -46,7 +47,7 @@ export const AppDataSource = new DataSource({
   username: "postgres",
   password: "postgres",
   database: "node_admin",
-  entities: [User, Role, Permission, ForgotPass, Product],
+  entities: [User, Role, Permission, ForgotPass, Product, Order],
   logging: false,
   synchronize: true,
 });
