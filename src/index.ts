@@ -27,6 +27,7 @@ import dotenv from "dotenv";
 
 import "reflect-metadata";
 import { Role } from "./entity/role.entity";
+import { Permission } from "./entity/permission.entity";
 
 // Load env vars:
 dotenv.config({ path: "./config/config.env" });
@@ -38,7 +39,7 @@ export const AppDataSource = new DataSource({
   username: "postgres",
   password: "postgres",
   database: "node_admin",
-  entities: [User, Role],
+  entities: [User, Role, Permission],
   logging: false,
   synchronize: true,
 });
