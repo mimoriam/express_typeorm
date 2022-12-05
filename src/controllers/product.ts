@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { AppDataSource } from "../index";
 import { Product } from "../entity/product.pagination";
-import { FindOptionsSelect } from "typeorm";
 
 export const GetProducts = async (
   req: Request,
@@ -9,7 +8,8 @@ export const GetProducts = async (
   next: NextFunction
 ) => {
   const productsRepository = await AppDataSource.getRepository(Product);
-  let queryResults;
+  const builder = productsRepository.createQueryBuilder("products");
+
   let selected, count;
   let sorted, count2;
 
@@ -41,12 +41,15 @@ export const GetProducts = async (
     }
   }
 
+  // Alternative Select syntax:
+  if (req.query.s) {
+    builder.where("products.title LIKE :s OR products.description LIKE :s OR products.image LIKE :s", {s: `%${req.query.s}%`})
+    return res.send(await builder.getMany())
+  }
+
   if (req.query.sort) {
-    [sorted, count2] = await productsRepository.findAndCount({
-      order: {
-        price: "ASC"
-      }
-    });
+    builder.orderBy("products.price", "ASC");
+    return res.send(await builder.getMany())
   }
 
   const take = 2; // This is the amount of results per page shown
@@ -89,8 +92,8 @@ export const GetProducts = async (
   if (sorted) {
     return res.send({
       count: count2,
-      sorted
-    })
+      sorted,
+    });
   }
 
   res.send({
